@@ -127,14 +127,16 @@ tree = {
 
                 tree.contMenu.Item.parents = tree.contMenu.box.el;
                 tree.contMenu.Item.ID = 'pre';
-                tree.contMenu.Item.evListName = tree.contMenu.moveHistory;
+                tree.contMenu.Item.evListName = tree.contMenu.addList;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
                 tree.contMenu.Item.childs.textContent = '<';
+                tree.contMenu.Item.el.pre.display = 'none';
 
                 tree.contMenu.Item.ID = 'list';
                 tree.contMenu.Item.evListName = tree.contMenu.addList;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
                 tree.contMenu.Item.el.list.textContent = tree.contMenu.Item.el.list.textAfterDel = '=';
+                tree.contMenu.Item.el.list.display = 'block';
 
                 tree.contMenu.Item.ID = 'close';
                 tree.contMenu.Item.evListName = tree.contMenu.close;
@@ -144,9 +146,10 @@ tree = {
                 tree.contMenu.Item.el.close.elemForDelete = tree.contMenu.Item.el.close.parentNode;
 
                 tree.contMenu.Item.ID = 'next';
-                tree.contMenu.Item.evListName = tree.contMenu.moveHistory;
+                tree.contMenu.Item.evListName = tree.contMenu.addList;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
                 tree.contMenu.Item.childs.textContent = '>';
+                tree.contMenu.Item.el.next.display = 'none';
 
                 tree.contMenu.Item.ID = 'clone';
                 tree.contMenu.Item.evListName = tree.contMenu.show;
@@ -167,8 +170,6 @@ tree = {
             else return;
         },
         close: function (event) {
-            console.log(event.target.papaForDelete);
-            console.log(event.target.elemForDelete);
             event.target.papaForDelete.removeChild(event.target.elemForDelete);
             if (event.target.ev) {
                 event.target.ev.elem.addEventListener('click', event.target.ev.list, true);
@@ -189,25 +190,32 @@ tree = {
             event.stopImmediatePropagation();
             tree.AJAX.parametrs = 'history=';
             tree.AJAX.store = document.body.appendChild(document.createElement('div'));
+            tree.AJAX.styler = event.target.display;
             tree.AJAX.store.papaForDelete = tree.AJAX.store.parentNode;
             tree.AJAX.store.elemForDelete = tree.AJAX.store;
             tree.AJAX.store.setAttribute('class', 'listcontent');
             tree.AJAX.content = tree.AJAX.store;
-            tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.addList, false);
+            //tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.addList, false);
             tree.AJAX.add.call(tree.AJAX);
+            tree.AJAX.store.setAttribute('style', 'display:' + tree.AJAX.styler + ';');
         },
         historyPrep: function () {
             for (var i = 1; i < this.length - 1; i++) {
+                this[i].children[0].number = i-1;
                 this[i].children[1].addEventListener('click', tree.contMenu.moveHistory, false);
                 this[i].children[2].addEventListener('click', tree.contMenu.removeItem, false);
             }
+            console.log(this[0].parentNode.children[1].children[0].textContent);
+            tree.contMenu.navy = this[0].parentNode;
+            tree.contMenu.posiotion = tree.contMenu.posiotion || this[this.length - 2].children[0].number;
+            console.log(tree.contMenu.posiotion);
             this[0].addEventListener('click', tree.contMenu.close, false);
             this[0].papaForDelete = this[0].parentNode.parentNode.parentNode;
             this[0].elemForDelete = this[0].parentNode.parentNode;
             this[0].ev = {};
             this[0].ev.list = tree.contMenu.addList;
             this[0].ev.elem = tree.contMenu.Item.el.list;
-            tree.contMenu.Item.el.list.parentNode.setAttribute('style', 'opacity:0;');
+            //tree.contMenu.Item.el.list.parentNode.setAttribute('style', 'opacity:0;');
             this[this.length - 1].children[0].addEventListener('click', tree.contMenu.Opacity.setting, false);
             this[this.length - 1].children[1].addEventListener('click', tree.contMenu.Opacity.setting, false);
         },
@@ -218,7 +226,7 @@ tree = {
                 this.parentNode.parentNode.parentNode.setAttribute('style', 'opacity:0.' + this.op + ';');
             }
         },
-        moveHistory: function () {console.log(this);
+        moveHistory: function () {
             tree.AJAX.parametrs = 'id=' + this.previousElementSibling.textContent;
             tree.AJAX.content = document.getElementsByClassName('node')[0];
             tree.AJAX.add.call(tree.AJAX);

@@ -34,13 +34,11 @@ tree = {
         do_it: function (event) {
             event.stopPropagation();
             if (event.target.textContent === '+') {
-                console.log(event.target.getAttribute('class'));
                 event.target.parentNode.setAttribute('class', '');
                 event.target.textContent = '-';
                 event.target.setAttribute('class', 'show');
             }
             else {
-                console.log(event.target.getAttribute('class'));
                 event.target.textContent = '+';
                 event.target.parentNode.setAttribute('class', 'clot');
                 event.target.setAttribute('class', 'hide');
@@ -95,13 +93,10 @@ tree = {
             el: {},
             ID: 'contextmenu',
             CLASS: 'contextmenu',
-            top: '',
-            left: '',
             make: function () {
                 this.el = document.body.appendChild(document.createElement(this.tags));
                 this.el.setAttribute('id', this.ID);
                 this.el.setAttribute('class', this.CLASS);
-                this.el.setAttribute('style', 'top:' + this.top + 'px; left:' + this.left + 'px;');
             }
         },
         Item: {
@@ -124,14 +119,15 @@ tree = {
         },
         insert: function (event) {
             event.preventDefault();
+            tree.items.span = {};
+            tree.items.span = event.target;
+            tree.items.span.setAttribute('class', 'active');
             if (document.getElementById('contextmenu') === null) {
-                tree.contMenu.box.top = event.clientY;
-                tree.contMenu.box.left = event.clientX;
                 tree.contMenu.box.make.call(tree.contMenu.box);
 
                 tree.contMenu.Item.parents = tree.contMenu.box.el;
                 tree.contMenu.Item.ID = 'pre';
-                tree.contMenu.Item.evListName = tree.contMenu.show;
+                tree.contMenu.Item.evListName = tree.contMenu.moveHistory;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
                 tree.contMenu.Item.childs.textContent = '<';
 
@@ -148,7 +144,7 @@ tree = {
                 tree.contMenu.Item.el.close.elemForDelete = tree.contMenu.Item.el.close.parentNode;
 
                 tree.contMenu.Item.ID = 'next';
-                tree.contMenu.Item.evListName = tree.contMenu.show;
+                tree.contMenu.Item.evListName = tree.contMenu.moveHistory;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
                 tree.contMenu.Item.childs.textContent = '>';
 
@@ -165,48 +161,73 @@ tree = {
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
 
                 tree.contMenu.Item.ID = 'save';
-                tree.contMenu.Item.evListName = tree.contMenu.show;
+                tree.contMenu.Item.evListName = tree.contMenu.save;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
             }
             else return;
         },
         close: function (event) {
+            console.log(event.target.papaForDelete);
+            console.log(event.target.elemForDelete);
             event.target.papaForDelete.removeChild(event.target.elemForDelete);
             if (event.target.ev) {
                 event.target.ev.elem.addEventListener('click', event.target.ev.list, true);
+                event.target.ev.elem.textContent = tree.contMenu.Item.el.list.textAfterDel;
+                tree.contMenu.Item.el.list.parentNode.setAttribute('style', '');
             }
+            if (tree.items.span) tree.items.span.removeAttribute('class');
         },
         show: function () {
-            console.log(this);
+            console.log(this.previousElementSibling.previousElementSibling.textContent);
+        },
+        removeItem: function () {
+            tree.AJAX.parametrs = 'removeitem=' + this.previousElementSibling.textContent;
+            tree.AJAX.content = document.getElementsByClassName('node')[0];
+            tree.AJAX.add.call(tree.AJAX);
         },
         addList: function (event) {
             event.stopImmediatePropagation();
             tree.AJAX.parametrs = 'history=';
             tree.AJAX.store = document.body.appendChild(document.createElement('div'));
+            tree.AJAX.store.papaForDelete = tree.AJAX.store.parentNode;
+            tree.AJAX.store.elemForDelete = tree.AJAX.store;
             tree.AJAX.store.setAttribute('class', 'listcontent');
             tree.AJAX.content = tree.AJAX.store;
-            //tree.AJAX.content = tree.contMenu.Item.el.list;
             tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.addList, false);
             tree.AJAX.add.call(tree.AJAX);
         },
         going: function () {
             for (var i = 1; i < this.length - 1; i++) {
-                this[i].addEventListener('click', tree.contMenu.getIndex, false);
-                this[i].number = this[i];
+                this[i].children[1].addEventListener('click', tree.contMenu.moveHistory, false);
+                this[i].children[2].addEventListener('click', tree.contMenu.removeItem, false);
             }
+            tree.contMenu.itemMax = this[i].children[0].textContent;
             this[0].addEventListener('click', tree.contMenu.close, false);
             this[0].papaForDelete = this[0].parentNode.parentNode;
             this[0].elemForDelete = this[0].parentNode;
             this[0].ev = {};
             this[0].ev.list = tree.contMenu.addList;
             this[0].ev.elem = tree.contMenu.Item.el.list;
+            tree.contMenu.Item.el.list.parentNode.setAttribute('style', 'opacity:0;');
+            this[this.length - 1].children[0].addEventListener('click', tree.contMenu.Opacity.setting, false);
+            this[this.length - 1].children[1].addEventListener('click', tree.contMenu.Opacity.setting, false);
         },
-        getIndex: function () {
-            tree.AJAX.parametrs = 'id=' + this.children[0].textContent;
-            tree.AJAX.content = document.getElementsByClassName('node')[0];
-            tree.AJAX.add.call(tree.AJAX);
+        Opacity: {
+            op: 0,
+            setting: function () {
+                this.textContent == '+' ? this.op < 9 ? this.op++ : this.op = 1 : this.op > 0 ? this.op-- : this.op = 9;
+                this.parentNode.parentNode.parentNode.setAttribute('style', 'opacity:0.' + this.op + ';');
+            }
+        },
+        moveHistory: function () {
+            console.log(tree.contMenu.itemMax);
+
+            //tree.AJAX.parametrs = 'id=' + this.previousElementSibling.textContent;
+            //tree.AJAX.content = document.getElementsByClassName('node')[0];
+            //tree.AJAX.add.call(tree.AJAX);
         },
         save: function () {
+            tree.items.span.removeAttribute('class');
             tree.AJAX.parametrs = 'insert=';
             tree.AJAX.content = document.getElementsByClassName('node')[0].innerHTML;
             tree.AJAX.moveHistory.call(tree.AJAX);
@@ -229,8 +250,7 @@ tree = {
                 }
                 if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
                     tree.AJAX.content.innerHTML = tree.AJAX.http.responseText;
-                    //tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.going, false);
-                    tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.going, true);
+                    tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.going, false);
                     tree.contMenu.going.call(tree.AJAX.store.children[0].children);
                 }
             };
@@ -246,8 +266,6 @@ tree = {
                     //if (tree.contMenu.box.el) tree.contMenu.box.el.setAttribute('id', 'load');
                 }
                 if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
-                    console.log(tree.AJAX.http.responseText);
-                    console.log(tree.AJAX.content.innerHTML);
                     tree.AJAX.content = tree.AJAX.http.responseText;
                 }
             };

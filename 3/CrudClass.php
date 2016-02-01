@@ -28,13 +28,26 @@ class Crud extends SQLite3
         $show = '';
         $i = 0;
         while ($row = $this->result->fetchArray()) {
-            $show .= '<li><span class="number">' . $row[0] . '</span><span class="date">' . $row[1] . '</span></li>';
+            $show .= '<li><span class="number">' . $row[0] . '</span><span class="date">' . $row[1] . '</span><span class="remove">-</span></li>';
             $i++;
         }
         echo '<ol start="0" id="history"><li class="close">X</li>', $show, '<li class="opacity"><span class="plus">-</span><span class="minus">+</span></li></ol>';
     }
 
     public function going($id)
+    {
+        $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = ' . $id . ';');
+        echo $this->result->fetchArray()[1];
+    }
+
+    public function removeItem($id)
+    {
+        $this->result = $this->query('DELETE  FROM HISTORY WHERE ID = ' . $id . ';');
+        $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = (SELECT max(ID)FROM HISTORY);');
+        echo $this->result->fetchArray()[1];
+    }
+
+    public function movehistory($id)
     {
         $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = ' . $id . ';');
         echo $this->result->fetchArray()[1];
@@ -58,4 +71,12 @@ if (isset($_POST['insert'])) {
 if (isset($_POST['id'])) {
     $num = intval($_POST['id']);
     $insertul->going($num);
+}
+if (isset($_POST['removeitem'])) {
+    $num = intval($_POST['removeitem']);
+    $insertul->removeItem($num);
+}
+if (isset($_POST['movehistory'])) {
+    $num = intval($_POST['movehistory']);
+    $insertul->movehistory($num);
 }

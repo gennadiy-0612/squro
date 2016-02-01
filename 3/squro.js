@@ -152,37 +152,53 @@ tree = {
                 tree.contMenu.Item.el.next.display = 'none';
 
                 tree.contMenu.Item.ID = 'clone';
-                tree.contMenu.Item.evListName = tree.contMenu.show;
+                tree.contMenu.Item.evListName = tree.contMenu.clone;
+                tree.contMenu.Item.make.call(tree.contMenu.Item);
+
+                tree.contMenu.Item.ID = 'delete';
+                tree.contMenu.Item.evListName = tree.contMenu.delete;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
 
                 tree.contMenu.Item.ID = 'edit';
                 tree.contMenu.Item.evListName = tree.contMenu.show;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
 
-                tree.contMenu.Item.ID = 'delete';
-                tree.contMenu.Item.evListName = tree.contMenu.show;
-                tree.contMenu.Item.make.call(tree.contMenu.Item);
-
                 tree.contMenu.Item.ID = 'save';
                 tree.contMenu.Item.evListName = tree.contMenu.save;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
+                tree.contMenu.Item.el.save.papaForDelete = tree.contMenu.Item.el.save.parentNode.parentNode;
+                tree.contMenu.Item.el.save.elemForDelete = tree.contMenu.Item.el.save.parentNode;
             }
             else return;
         },
+        navy: [],
+        here: '',
         close: function (event) {
-            event.target.papaForDelete.removeChild(event.target.elemForDelete);
-            if (event.target.ev) {
-                event.target.ev.elem.addEventListener('click', event.target.ev.list, true);
-                event.target.ev.elem.textContent = tree.contMenu.Item.el.list.textAfterDel;
-                tree.contMenu.Item.el.list.parentNode.setAttribute('style', '');
+            if (this.Item.parents) this.Item.parents.parentNode.removeChild(this.Item.parents);
+            else {
+                event.target.papaForDelete.removeChild(event.target.elemForDelete);
+                if (event.target.ev) {
+                    event.target.ev.elem.addEventListener('click', event.target.ev.list, true);
+                    event.target.ev.elem.textContent = tree.contMenu.Item.el.list.textAfterDel;
+                    tree.contMenu.Item.el.list.parentNode.setAttribute('style', '');
+                }
+                if (tree.items.span) tree.items.span.removeAttribute('class');
             }
-            if (tree.items.span) tree.items.span.removeAttribute('class');
         },
         show: function () {
-            console.log(this.previousElementSibling.previousElementSibling.textContent);
+            console.log(this);
+        },
+        delete: function () {
+            tree.items.span.parentNode.parentNode.removeChild(tree.items.span.parentNode);
+        },
+        clone: function () {
+            tree.items.span.removeAttribute('class');
+            tree.items.span.parentNode.parentNode.insertBefore(
+                tree.items.span.parentNode.cloneNode(true),
+                tree.items.span.parentNode);
         },
         removeItem: function () {
-            tree.AJAX.parametrs = 'removeitem=' + this.previousElementSibling.textContent;
+            tree.AJAX.parametrs = 'removeitem=' + this.previousElementSibling.previousElementSibling.textContent;
             tree.AJAX.content = document.getElementsByClassName('node')[0];
             tree.AJAX.add.call(tree.AJAX);
         },
@@ -198,17 +214,17 @@ tree = {
             //tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.addList, false);
             tree.AJAX.add.call(tree.AJAX);
             tree.AJAX.store.setAttribute('style', 'display:' + tree.AJAX.styler + ';');
+            this.removeEventListener('click', tree.contMenu.addList, false);
+            this.addEventListener('click', tree.contMenu.addList, false);
+            console.log(this)
         },
         historyPrep: function () {
             for (var i = 1; i < this.length - 1; i++) {
-                this[i].children[0].number = i-1;
-                this[i].children[1].addEventListener('click', tree.contMenu.moveHistory, false);
+                tree.contMenu.navy[i - 1] = this[i].children[0].textContent;
+                tree.contMenu.moveHistory.ID = tree.contMenu.navy[i - 1];
+                this[i].children[1].addEventListener('click', tree.contMenu.moveHistory.make, false);
                 this[i].children[2].addEventListener('click', tree.contMenu.removeItem, false);
             }
-            console.log(this[0].parentNode.children[1].children[0].textContent);
-            tree.contMenu.navy = this[0].parentNode;
-            tree.contMenu.posiotion = tree.contMenu.posiotion || this[this.length - 2].children[0].number;
-            console.log(tree.contMenu.posiotion);
             this[0].addEventListener('click', tree.contMenu.close, false);
             this[0].papaForDelete = this[0].parentNode.parentNode.parentNode;
             this[0].elemForDelete = this[0].parentNode.parentNode;
@@ -226,10 +242,15 @@ tree = {
                 this.parentNode.parentNode.parentNode.setAttribute('style', 'opacity:0.' + this.op + ';');
             }
         },
-        moveHistory: function () {
-            tree.AJAX.parametrs = 'id=' + this.previousElementSibling.textContent;
-            tree.AJAX.content = document.getElementsByClassName('node')[0];
-            tree.AJAX.add.call(tree.AJAX);
+        moveHistory: {
+            ID: '',
+            make: function () {
+                tree.contMenu.navy.here = tree.contMenu.moveHistory.ID;
+                console.log(tree.contMenu.navy.here);
+                tree.AJAX.parametrs = 'id=' + this.previousElementSibling.textContent;
+                tree.AJAX.content = document.getElementsByClassName('node')[0];
+                tree.AJAX.add.call(tree.AJAX);
+            }
         },
         save: function () {
             tree.items.span.removeAttribute('class');
@@ -284,11 +305,11 @@ tree = {
         getTarget: function (event) {
             event.stopPropagation();
             tree.dblclick.oldChild = event.target;
-            if (event.target.tagName !== ('TEXTAREA' || 'DIV') && !event.target.children[0]) tree.dblclick.withoutKids();
-            else tree.dblclick.withKids();
+            if (event.target.children[0]) tree.dblclick.withKids();
+            else tree.dblclick.withoutKids();
         },
         withoutKids: function () {
-            this.act(this.oldChild, 'removeEventListener');
+            this.oldChild.removeEventListener('dblclick', tree.dblclick.getTarget, false);
             this.Text = this.oldChild.childNodes[0].textContent;
             this.textarea = document.createElement('textarea');
             this.textarea.setAttribute('class', 'editable');

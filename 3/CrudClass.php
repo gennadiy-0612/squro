@@ -19,7 +19,7 @@ class Crud extends SQLite3
     public function read()
     {
         $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = (SELECT max(ID)FROM HISTORY);');
-        $this->show = htmlspecialchars_decode($this->result->fetchArray()[1]);
+        $this->show = $this->result->fetchArray()[1];
     }
 
     public function history()

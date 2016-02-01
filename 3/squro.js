@@ -196,15 +196,14 @@ tree = {
             tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.addList, false);
             tree.AJAX.add.call(tree.AJAX);
         },
-        going: function () {
+        historyPrep: function () {
             for (var i = 1; i < this.length - 1; i++) {
                 this[i].children[1].addEventListener('click', tree.contMenu.moveHistory, false);
                 this[i].children[2].addEventListener('click', tree.contMenu.removeItem, false);
             }
-            tree.contMenu.itemMax = this[i].children[0].textContent;
             this[0].addEventListener('click', tree.contMenu.close, false);
-            this[0].papaForDelete = this[0].parentNode.parentNode;
-            this[0].elemForDelete = this[0].parentNode;
+            this[0].papaForDelete = this[0].parentNode.parentNode.parentNode;
+            this[0].elemForDelete = this[0].parentNode.parentNode;
             this[0].ev = {};
             this[0].ev.list = tree.contMenu.addList;
             this[0].ev.elem = tree.contMenu.Item.el.list;
@@ -219,12 +218,10 @@ tree = {
                 this.parentNode.parentNode.parentNode.setAttribute('style', 'opacity:0.' + this.op + ';');
             }
         },
-        moveHistory: function () {
-            console.log(tree.contMenu.itemMax);
-
-            //tree.AJAX.parametrs = 'id=' + this.previousElementSibling.textContent;
-            //tree.AJAX.content = document.getElementsByClassName('node')[0];
-            //tree.AJAX.add.call(tree.AJAX);
+        moveHistory: function () {console.log(this);
+            tree.AJAX.parametrs = 'id=' + this.previousElementSibling.textContent;
+            tree.AJAX.content = document.getElementsByClassName('node')[0];
+            tree.AJAX.add.call(tree.AJAX);
         },
         save: function () {
             tree.items.span.removeAttribute('class');
@@ -250,8 +247,8 @@ tree = {
                 }
                 if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
                     tree.AJAX.content.innerHTML = tree.AJAX.http.responseText;
-                    tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.going, false);
-                    tree.contMenu.going.call(tree.AJAX.store.children[0].children);
+                    tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.historyPrep, false);
+                    tree.contMenu.historyPrep.call(tree.AJAX.store.children[0].children);
                 }
             };
             tree.AJAX.http.send(tree.AJAX.params);

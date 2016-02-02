@@ -299,4 +299,5 @@ tree = {
 };
 
 if (window.addEventListener) window.addEventListener('load', tree.load, true);
+
 else window.attachEvent('onload', tree.load);

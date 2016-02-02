@@ -28,7 +28,10 @@ class Crud extends SQLite3
         $show = '';
         $i = 0;
         while ($row = $this->result->fetchArray()) {
-            $show .= '<li><span class="number">' . $row[0] . '</span><span class="date">' . $row[1] . '</span><span class="remove">-</span></li>';
+            $show .= '<li><span class="number">' . $row[0] . '</span>
+            <span class="date">' . $row[1] . '</span>
+            <span class="remove">-</span>
+            <span class="clone">+</span></li>';
             $i++;
         }
         echo '<ol start="0" id="history"><li class="close">X</li>', $show, '<li class="opacity"><span class="plus">-</span><span class="minus">+</span></li></ol>';

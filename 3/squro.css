@@ -168,7 +168,7 @@ ol#history {
     margin: 5px auto;
     overflow-y: scroll;
     padding: 5px;
-    width: 225px;
+    width: 230px;
     z-index: 1;
 }
 
@@ -176,7 +176,7 @@ ol#history li {
     list-style: decimal-leading-zero inside;
 }
 
-.remove {
+.remove, .clone {
     background-color: #F52340;
     display: inline-block;
     width: 20px;
@@ -185,8 +185,12 @@ ol#history li {
     text-align: center;
     margin: 1px 0 0 0;
 }
+.clone{
+    background-color: #1854cc;
+}
 
-.remove:hover {
+.remove:hover,
+.clone:hover {
     cursor: pointer;
 }
 

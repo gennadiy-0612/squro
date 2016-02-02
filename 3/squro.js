@@ -9,7 +9,7 @@ tree = {
             DragDrop: document.getElementsByTagName('span'),
             resetter: function () {
                 for (var i = 0; i < this.DragDrop.length; i++) {
-                    this.DragDrop[i].setAttribute('draggable', 'false');
+                    this.DragDrop[i].parentNode.setAttribute('draggable', 'false');
                     this.DragDrop[i].addEventListener('dblclick', tree.dblclick.getTarget, false);
                     this.DragDrop[i].parentNode.addEventListener('mouseenter', tree.items.mouse.enter.do_it, false);
                     this.DragDrop[i].parentNode.addEventListener('mouseleave', tree.items.mouse.leave.do_it, false);
@@ -119,7 +119,6 @@ tree = {
         },
         insert: function (event) {
             event.preventDefault();
-            tree.items.span = {};
             tree.items.span = event.target;
             tree.items.span.setAttribute('class', 'active');
             if (document.getElementById('contextmenu') === null) {
@@ -142,8 +141,10 @@ tree = {
                 tree.contMenu.Item.evListName = tree.contMenu.close;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
                 tree.contMenu.Item.childs.textContent = 'X';
-                tree.contMenu.Item.el.close.papaForDelete = tree.contMenu.Item.el.close.parentNode.parentNode;
-                tree.contMenu.Item.el.close.elemForDelete = tree.contMenu.Item.el.close.parentNode;
+                tree.contMenu.Item.el.close.delInfo = {
+                    papa: tree.contMenu.Item.el.close.parentNode.parentNode,
+                    elem: tree.contMenu.Item.el.close.parentNode
+                };
 
                 tree.contMenu.Item.ID = 'next';
                 tree.contMenu.Item.evListName = tree.contMenu.addList;
@@ -160,7 +161,7 @@ tree = {
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
 
                 tree.contMenu.Item.ID = 'edit';
-                tree.contMenu.Item.evListName = tree.contMenu.show;
+                tree.contMenu.Item.evListName = tree.dblclick.getTarget;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
 
                 tree.contMenu.Item.ID = 'save';
@@ -174,16 +175,9 @@ tree = {
         navy: [],
         here: '',
         close: function (event) {
-            if (this.Item.parents) this.Item.parents.parentNode.removeChild(this.Item.parents);
-            else {
-                event.target.papaForDelete.removeChild(event.target.elemForDelete);
-                if (event.target.ev) {
-                    event.target.ev.elem.addEventListener('click', event.target.ev.list, true);
-                    event.target.ev.elem.textContent = tree.contMenu.Item.el.list.textAfterDel;
-                    tree.contMenu.Item.el.list.parentNode.setAttribute('style', '');
-                }
-                if (tree.items.span) tree.items.span.removeAttribute('class');
-            }
+            console.log(event.target.parentNode.parentNode);
+            event.target.parentNode.parentNode.parentNode.removeChild(event.target.parentNode.parentNode);
+            if (tree.items.span) tree.items.span.removeAttribute('class');
         },
         show: function () {
             console.log(this);
@@ -201,9 +195,9 @@ tree = {
             tree.AJAX.parametrs = 'removeitem=' + this.previousElementSibling.previousElementSibling.textContent;
             tree.AJAX.content = document.getElementsByClassName('node')[0];
             tree.AJAX.add.call(tree.AJAX);
+            this.parentNode.parentNode.removeChild(this.parentNode);
         },
         addList: function (event) {
-            event.stopImmediatePropagation();
             tree.AJAX.parametrs = 'history=';
             tree.AJAX.store = document.body.appendChild(document.createElement('div'));
             tree.AJAX.styler = event.target.display;
@@ -224,6 +218,7 @@ tree = {
                 tree.contMenu.moveHistory.ID = tree.contMenu.navy[i - 1];
                 this[i].children[1].addEventListener('click', tree.contMenu.moveHistory.make, false);
                 this[i].children[2].addEventListener('click', tree.contMenu.removeItem, false);
+                this[i].children[3].addEventListener('click', tree.contMenu.save, false);
             }
             this[0].addEventListener('click', tree.contMenu.close, false);
             this[0].papaForDelete = this[0].parentNode.parentNode.parentNode;
@@ -245,8 +240,7 @@ tree = {
         moveHistory: {
             ID: '',
             make: function () {
-                tree.contMenu.navy.here = tree.contMenu.moveHistory.ID;
-                console.log(tree.contMenu.navy.here);
+                tree.contMenu.here = this.previousElementSibling.textContent;
                 tree.AJAX.parametrs = 'id=' + this.previousElementSibling.textContent;
                 tree.AJAX.content = document.getElementsByClassName('node')[0];
                 tree.AJAX.add.call(tree.AJAX);
@@ -257,7 +251,7 @@ tree = {
             tree.AJAX.parametrs = 'insert=';
             tree.AJAX.content = document.getElementsByClassName('node')[0].innerHTML;
             tree.AJAX.moveHistory.call(tree.AJAX);
-            tree.contMenu.close();
+            console.log(this.parentNode.parentNode.parentNode.parentNode);
         }
     },
     AJAX: {
@@ -299,74 +293,32 @@ tree = {
         }
     },
     dblclick: {
-        oldChild: '',
-        Text: '',
+        Span: '',
         textarea: '',
         getTarget: function (event) {
             event.stopPropagation();
-            tree.dblclick.oldChild = event.target;
-            if (event.target.children[0]) tree.dblclick.withKids();
-            else tree.dblclick.withoutKids();
+            tree.dblclick.Span = event.target;
+            tree.dblclick.edit.call(tree.dblclick);
         },
-        withoutKids: function () {
-            this.oldChild.removeEventListener('dblclick', tree.dblclick.getTarget, false);
-            this.Text = this.oldChild.childNodes[0].textContent;
+        edit: function () {
             this.textarea = document.createElement('textarea');
+            this.textarea.addEventListener('mouseleave', tree.dblclick.caller, false);
             this.textarea.setAttribute('class', 'editable');
-            this.oldChild.textContent = '';
-            this.textarea.textContent = this.Text;
-            this.oldChild.appendChild(this.textarea);
-            this.textarea.addEventListener('mouseleave', this.calls, false);
-            this.oldChild.removeEventListener('mouseleave', tree.items.mouse.leave.do_it, false);
-            this.oldChild.setAttribute('draggable', false);
+            this.textarea.textContent = this.Span.textContent;
+            this.Span.parentNode.insertBefore(this.textarea, this.Span);
+            this.textarea.parentNode.removeEventListener('contextmenu', tree.contMenu.insert, false);
+            this.Span.parentNode.removeChild(this.Span);
         },
-        savedKid: '',
-        act: function (oldChild, action) {
-            while (oldChild.parentNode.parentNode.tagName !== 'BODY') {
-                oldChild = oldChild.parentNode;
-                if (oldChild.parentNode.parentNode.tagName !== 'UL') {
-                    oldChild[action]('dblclick', tree.dblclick.getTarget, false);
-                }
-            }
+        caller: function () {
+            tree.dblclick.notEdit.call(tree.dblclick);
         },
-        withKids: function () {
-            this.act(this.oldChild, 'removeEventListener');
-            this.oldChild.setAttribute('draggable', false);
-            this.oldChild.setAttribute('class', this.oldChild.getAttribute('class'));
-            this.Text = this.oldChild.childNodes[0].textContent.replace(/^\s+|\tab+|\n+|\r+|\s+$/gm, '');
-            this.savedKid = this.oldChild.children[0];
-            this.oldChild.childNodes[0].parentNode.removeChild(this.oldChild.childNodes[0]);
-            this.oldChild.children[0].parentNode.removeChild(this.oldChild.children[0]);
-            this.textarea = document.createElement('textarea');
-            this.textarea.setAttribute('class', 'editable');
-            this.textarea.textContent = this.Text;
-            this.oldChild.appendChild(this.textarea);
-            this.textarea.parentNode.appendChild(this.savedKid);
-            this.textarea.addEventListener('mouseleave', this.calls1, false);
-            this.oldChild.removeEventListener('mouseleave', tree.mouseleave.do_it, false);
-        },
-        calls: function () {
-            tree.dblclick.makeNotEdit.call(tree.dblclick);
-        },
-        calls1: function () {
-            tree.dblclick.makeNotEdit1.call(tree.dblclick);
-        },
-        makeNotEdit: function () {
-            this.oldChild.addEventListener('dblclick', tree.dblclick.getTarget, false);
-            this.oldChild.addEventListener('mouseleave', tree.items.mouse.leave.do_it, false);
-            this.oldChild.removeChild(this.textarea);
-            this.oldChild.textContent = this.textarea.value;
-            this.act(this.oldChild, 'addEventListener');
-            this.oldChild.addEventListener('mouseleave', tree.items.mouse.leave.do_it, false);
-        },
-        makeNotEdit1: function () {
-            this.oldChild.addEventListener('dblclick', tree.dblclick.getTarget, false);
-            this.oldChild.addEventListener('mouseleave', tree.mouseleave.do_it, false);
-            this.oldChild.removeChild(this.textarea);
-            this.oldChild.textContent = this.textarea.value;
-            this.oldChild.appendChild(this.savedKid);
-            this.act(this.oldChild, 'addEventListener');
-            this.oldChild.addEventListener('mouseleave', tree.mouseleave.do_it, false);
+        notEdit: function () {
+            this.Span = document.createElement('span');
+            this.Span.textContent = this.textarea.value;
+            this.textarea.parentNode.insertBefore(this.Span, this.textarea);
+            this.textarea.parentNode.removeChild(this.textarea);
+            this.Span.addEventListener('click', this.getTarget, false);
+            this.Span.parentNode.addEventListener('contextmenu', tree.contMenu.insert, false);
         }
     }
 };

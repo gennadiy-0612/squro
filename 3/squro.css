@@ -26,10 +26,10 @@ textarea.editable {
 .contextmenu {
     background-color: #a7cfff;
     bottom: 0;
-    height: 160px;
+    height: 200px;
     left: 0;
     margin: auto;
-    padding: 0 8px 5px;
+    padding: 0 8px 4px;
     position: absolute;
     right: 0;
     top: 0;
@@ -65,18 +65,11 @@ textarea.editable {
     background-color: #1854cc;
 }
 
-#close,
-ol#history li.close {
+.opacity .close {
     background-color: #ffad83;
-    border-radius: 20px;
-    position: absolute;
-    right: -22px;
-    text-align: center;
-    top: -30px;
-    width: 15px;
 }
 
-#close:hover {
+.close:hover {
     background-color: #ff802b;
 }
 
@@ -161,15 +154,21 @@ ul {
     height: 250px;
     left: 0;
     margin: auto;
-    padding: 0 15px 0 0;
+    padding: 5px;
     position: absolute;
     right: 0;
     top: 0;
-    width: 250px;
+    width: 230px;
     z-index: 1;
+    overflow-y: auto;
+}
+.listcontent li{
+    height: 20px;
+    list-style-type: decimal-leading-zero;
+    list-style-position: inside;
 }
 
-ol#history {
+#history {
     background-color: #8c6aff;
     height: 230px;
     left: -30px;
@@ -188,27 +187,36 @@ ol#history li {
     background-color: #e65615;
     border-radius: 10px;
     height: 16px;
-    left: 205px;
     line-height: 16px;
     padding: 0 5px;
     text-align: center;
+    width: 7px;
+    display: block;
+    float: right;
+    margin: 0 1px;
 }
 
 .clone {
     background-color: #1854cc;
-    left: 180px;
 }
 
 .remove:hover,
-.clone:hover {
+.clone:hover,
+.close:hover,
+.plus:hover,
+.minus:hover {
     cursor: pointer;
 }
 
-.remove:active {
+.remove:active,
+.clone:active,
+.close:active,
+.plus:active,
+.minus:active {
     background-color: #fff;
 }
 
-ol#history span.date:hover,
+span.date:hover,
 #list {
     background-color: #d5d1ff;
     color: #2B2B2B;
@@ -223,32 +231,27 @@ ol#history span.date:hover,
     color: #fff;
 }
 
-ol#history li.close,
-ol#history li.opacity {
-    top: -10px;
-    right: -13px;
-    list-style-type: none;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    position: absolute;
-}
-
-ol#history li.opacity {
-    top: 30px;
-    background-color: #ffF;
-    height: 75px;
-    right: -17px;
-    padding: 0 3px;
+.opacity {
+    top: 0;
+    height: 337px;
+    right: 0;
     border-radius: 20px;
+    position: absolute;
+    width: 150px;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    padding: 0 0 0 40px;
 }
 
-.plus, .minus {
+.plus, .minus, .close {
     display: block;
     background: #d5d1ff;
     height: 30px;
     line-height: 30px;
     text-align: center;
-    margin: 5px 0;
+    margin: 5px;
     border-radius: 25px;
+    width: 30px;
+    float: left;
 }

@@ -35,7 +35,11 @@ class Crud extends SQLite3
             <span class="clone">+</span></li>';
             $i++;
         }
-        echo '<ol start="0" id="history"><li class="close">X</li>', $show, '<li class="opacity"><span class="plus">-</span><span class="minus">+</span></li></ol>';
+        echo    $show;//, '
+//              <div class="opacity">
+//               <span class="plus">-</span>
+//               <span class="minus">+</span>
+//              </div>';
     }
 
     public function going($id)
@@ -63,29 +67,40 @@ class Crud extends SQLite3
         $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = (SELECT max(ID)FROM HISTORY);');
         echo $this->result->fetchArray()[1];
     }
+
+    public function update()
+    {
+        $this->result = $this->query('SELECT ID, TIMESTAMP FROM HISTORY;');
+        while ($row = $this->result->fetchArray()) {
+            $this->show .= '<li><span class="number">' . $row[0] . '</span>
+            <span class="date">' . $row[1] . '</span>
+            <span class="remove">-</span>
+            <span class="clone">+</span></li>';
+        }
+    }
 }
 
-$insertul = new Crud();
+$dbData = new Crud();
 if (isset($_POST['history'])) {
-    $insertul->history();
+    $dbData->history();
 }
 if (isset($_POST['insert'])) {
-    $insertul->insert($_POST['insert']);
+    $dbData->insert($_POST['insert']);
 }
 if (isset($_POST['id'])) {
     $num = intval($_POST['id']);
-    $insertul->going($num);
+    $dbData->going($num);
 }
 if (isset($_POST['removeitem'])) {
     $num = intval($_POST['removeitem']);
-    $insertul->removeItem($num);
+    $dbData->removeItem($num);
 }
 if (isset($_POST['movehistory'])) {
     $num = intval($_POST['movehistory']);
-    $insertul->movehistory($num);
+    $dbData->movehistory($num);
 }
-if (isset($_POST['read'])) {
-    $num = intval($_POST['read']);
-    $insertul->read();
-    $insertul->show;
+if (isset($_POST['update'])) {
+    $num = intval($_POST['update']);
+    $dbData->update();
+    echo $dbData->show;
 }

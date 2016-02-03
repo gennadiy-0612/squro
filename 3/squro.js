@@ -86,6 +86,7 @@ tree = {
     load: function () {
         tree.items.span.resetter.call(tree.items.span);
         tree.items.clot.doIt.call(tree.items.clot);
+        tree.disactive = document.getElementsByTagName('h1')[0];
     },
     contMenu: {
         box: {
@@ -146,7 +147,7 @@ tree = {
                 tree.contMenu.Item.evListName = tree.contMenu.save;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
             }
-            else return;
+            else return true;
         },
         closeContMenu: function (event) {
             if (tree.items.span) tree.items.span.removeAttribute('class');
@@ -155,6 +156,8 @@ tree = {
         closeHistory: function (event) {
             if (tree.items.span) tree.items.span.removeAttribute('class');
             document.body.removeChild(event.target.parentNode.parentNode);
+            tree.contMenu.box.el.removeAttribute('style');
+            console.log(tree.contMenu.box.el);
         },
         delete: function () {
             tree.items.span.parentNode.parentNode.removeChild(tree.items.span.parentNode);
@@ -172,27 +175,27 @@ tree = {
             this.parentNode.parentNode.removeChild(this.parentNode);
         },
         addItem: function () {
-            tree.AJAX.parametrs = 'removeitem=' + this.previousElementSibling.previousElementSibling.textContent;
-            tree.AJAX.content = document.getElementsByClassName('node')[0];
-            tree.AJAX.add.call(tree.AJAX);
-            this.parentNode.cloneNode(true);
             tree.contMenu.save();
-            this.parentNode.parentNode.insertBefore(
-                this.parentNode.cloneNode(true),
-                this.parentNode);
-            this.parentNode.previousSibling.children[1].addEventListener('click', tree.contMenu.moveHistory.make, false);
-            this.parentNode.previousSibling.children[1].textContent = 'Just added';
-            this.parentNode.previousSibling.children[2].addEventListener('click', tree.contMenu.removeItem, false);
-            this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.addItem, false);
+            console.log(this.parentNode.parentNode);
+            //this.parentNode.parentNode.appendChild(this.parentNode.cloneNode(true));
+            //this.parentNode.previousSibling.children[1].addEventListener('click', tree.contMenu.moveHistory.make, false);
+            //this.parentNode.previousSibling.children[1].textContent = 'Just added';
+            //this.parentNode.previousSibling.children[2].addEventListener('click', tree.contMenu.removeItem, false);
+            //this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.read, false);
+            //this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.addItem, false);
         },
-        addList: function (event) {
+        addList: function () {
             tree.AJAX.parametrs = 'history=';
             tree.AJAX.store = document.body.appendChild(document.createElement('div'));
             tree.AJAX.store.setAttribute('class', 'listcontent');
             tree.AJAX.content = tree.AJAX.store;
             tree.AJAX.add.call(tree.AJAX);
-            this.removeEventListener('click', tree.contMenu.addList, false);
-            this.addEventListener('click', tree.contMenu.addList, false);
+            tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
+        },
+        read: function () {
+            tree.AJAX.parametrs = 'read=';
+            tree.AJAX.add.call(tree.AJAX);
+            tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
         },
         historyPrep: function () {
             for (var i = 1; i < this.length - 1; i++) {
@@ -222,11 +225,14 @@ tree = {
                 tree.AJAX.add.call(tree.AJAX);
             }
         },
-        save: function (event) {
+        save: function () {
+            if (tree.contMenu.box.el) tree.contMenu.box.el.setAttribute('style', 'opacity:0.3;');
             tree.items.span.removeAttribute('class');
             tree.AJAX.parametrs = 'insert=';
             tree.AJAX.content = document.getElementsByClassName('node')[0].innerHTML;
             tree.AJAX.moveHistory.call(tree.AJAX);
+            if (tree.items.span) tree.items.span.removeAttribute('class');
+            document.body.removeChild(tree.contMenu.box.el);
         }
     },
     AJAX: {
@@ -241,12 +247,13 @@ tree = {
             tree.AJAX.http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             tree.AJAX.http.onreadystatechange = function () {
                 if (tree.AJAX.http.readyState < 4 && tree.AJAX.http.status == 200) {
-                    //if (tree.contMenu.box.el) tree.contMenu.box.el.setAttribute('id', 'load');
+                    tree.disactive.setAttribute('id', 'load');
                 }
                 if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
                     tree.AJAX.content.innerHTML = tree.AJAX.http.responseText;
                     tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.historyPrep, false);
                     tree.contMenu.historyPrep.call(tree.AJAX.store.children[0].children);
+                    tree.disactive.setAttribute('id', 'loaded');
                 }
             };
             tree.AJAX.http.send(tree.AJAX.params);
@@ -258,10 +265,11 @@ tree = {
             tree.AJAX.http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             tree.AJAX.http.onreadystatechange = function () {
                 if (tree.AJAX.http.readyState < 4 && tree.AJAX.http.status == 200) {
-                    //if (tree.contMenu.box.el) tree.contMenu.box.el.setAttribute('id', 'load');
+                    tree.disactive.setAttribute('id', 'load');
                 }
                 if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
                     tree.AJAX.content = tree.AJAX.http.responseText;
+                    tree.disactive.setAttribute('id', 'loaded');
                 }
             };
             tree.AJAX.http.send(tree.AJAX.params);

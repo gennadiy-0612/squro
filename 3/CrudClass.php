@@ -9,6 +9,7 @@
 class Crud extends SQLite3
 {
     public $conn = '';
+    public $result = '';
     public $show = '';
 
     function __construct()
@@ -82,4 +83,9 @@ if (isset($_POST['removeitem'])) {
 if (isset($_POST['movehistory'])) {
     $num = intval($_POST['movehistory']);
     $insertul->movehistory($num);
+}
+if (isset($_POST['read'])) {
+    $num = intval($_POST['read']);
+    $insertul->read();
+    $insertul->show;
 }

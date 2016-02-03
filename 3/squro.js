@@ -176,13 +176,12 @@ tree = {
         },
         addItem: function () {
             tree.contMenu.save();
-            console.log(this.parentNode.parentNode);
-            //this.parentNode.parentNode.appendChild(this.parentNode.cloneNode(true));
-            //this.parentNode.previousSibling.children[1].addEventListener('click', tree.contMenu.moveHistory.make, false);
-            //this.parentNode.previousSibling.children[1].textContent = 'Just added';
-            //this.parentNode.previousSibling.children[2].addEventListener('click', tree.contMenu.removeItem, false);
-            //this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.read, false);
-            //this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.addItem, false);
+            this.parentNode.parentNode.appendChild(this.parentNode.cloneNode(true));
+            this.parentNode.previousSibling.children[1].addEventListener('click', tree.contMenu.moveHistory.make, false);
+            this.parentNode.previousSibling.children[1].textContent = 'Just added';
+            this.parentNode.previousSibling.children[2].addEventListener('click', tree.contMenu.removeItem, false);
+            this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.read, false);
+            this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.addItem, false);
         },
         addList: function () {
             tree.AJAX.parametrs = 'history=';

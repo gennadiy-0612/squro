@@ -84,7 +84,9 @@ tree = {
         }
     },
     load: function () {
+        tree.refrashNodeEvens = new Object(tree.items.span);
         tree.items.span.resetter.call(tree.items.span);
+        tree.refrashClotEvens = new Object(tree.items.clot);
         tree.items.clot.doIt.call(tree.items.clot);
         tree.disactive = document.getElementsByTagName('h1')[0];
     },
@@ -98,6 +100,7 @@ tree = {
                 this.el = document.body.appendChild(document.createElement(this.tags));
                 this.el.setAttribute('id', this.ID);
                 this.el.setAttribute('class', this.CLASS);
+                this.el.number = 1;
             }
         },
         Item: {
@@ -121,19 +124,19 @@ tree = {
         insert: function (event) {
             event.preventDefault();
             tree.items.span = event.target;
-            tree.items.span.setAttribute('class', 'active');
-            if (document.getElementById('contextmenu') === null) {
+            if (tree.contMenu.box.el.innerHTML === undefined) {
+                tree.items.span.setAttribute('class', 'active');
                 tree.contMenu.box.make.call(tree.contMenu.box);
 
                 tree.contMenu.Item.parents = tree.contMenu.box.el;
-                tree.contMenu.Item.ID = 'list';
-                tree.contMenu.Item.evListName = tree.contMenu.list.add;
-                tree.contMenu.Item.make.call(tree.contMenu.Item);
-
                 tree.contMenu.Item.ID = 'close';
                 tree.contMenu.Item.evListName = tree.contMenu.closeContMenu;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
                 tree.contMenu.Item.childs.textContent = 'X';
+
+                tree.contMenu.Item.ID = 'list';
+                tree.contMenu.Item.evListName = tree.contMenu.readHistory;
+                tree.contMenu.Item.make.call(tree.contMenu.Item);
 
                 tree.contMenu.Item.ID = 'clone';
                 tree.contMenu.Item.evListName = tree.contMenu.clone;
@@ -152,15 +155,12 @@ tree = {
         closeContMenu: function (event) {
             if (tree.items.span) tree.items.span.removeAttribute('class');
             document.body.removeChild(event.target.parentNode);
+            console.log(tree);
         },
-        closeHistory: function (event) {
-            if (tree.items.span) tree.items.span.removeAttribute('class');
-            document.body.removeChild(event.target.parentNode.parentNode);
-            tree.contMenu.box.el.removeAttribute('style');
-            console.log(tree.contMenu.box.el);
-        },
-        delete: function () {
-            tree.items.span.parentNode.parentNode.removeChild(tree.items.span.parentNode);
+        closeListItems: function () {
+            document.body.removeChild(tree.contMenu.listHistory.titleBox);
+            document.body.removeChild(tree.contMenu.listHistory.fullBox);
+            tree.contMenu.box.el.setAttribute('style', '');
         },
         clone: function () {
             tree.items.span.removeAttribute('class');
@@ -168,139 +168,147 @@ tree = {
                 tree.items.span.parentNode.cloneNode(true),
                 tree.items.span.parentNode);
         },
-        removeItem: function () {
-            tree.AJAX.parameters = 'removeitem=' + this.previousElementSibling.previousElementSibling.textContent;
-            tree.AJAX.content = document.getElementsByClassName('node')[0];
-            tree.AJAX.add.call(tree.AJAX);
-            this.parentNode.parentNode.removeChild(this.parentNode);
-        },
-        addItem: function () {
-            //tree.contMenu.save();
-            console.log(this);
-            tree.contMenu.list.update();
-            //console.log(this.parentNode.previousSibling);
-            //this.parentNode.parentNode.insertBefore(this.parentNode.cloneNode(true), this.parentNode);
-            //this.parentNode.previousSibling.children[1].addEventListener('click', tree.contMenu.moveHistory.make, false);
-            //this.parentNode.previousSibling.children[1].textContent = 'Just added';
-            //this.parentNode.previousSibling.children[2].addEventListener('click', tree.contMenu.removeItem, false);
-            ////this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.addItem, false);
-            //this.parentNode.previousSibling.children[3].addEventListener('click', tree.contMenu.list.update, false);
-        },
-        list: {
-            add: function () {
-                tree.AJAX.parameters = 'history=';
-                tree.AJAX.store = document.body.appendChild(document.createElement('ul'));
-                tree.AJAX.store.setAttribute('class', 'listcontent');
-                tree.AJAX.opcity = document.body.appendChild(document.createElement('div'));
-                tree.AJAX.opcity.setAttribute('class', 'opacity');
-                tree.AJAX.opcity.innerHTML = '<span class="plus">-</span><span class="minus">+</span><span class="close">X</span>';
-                tree.AJAX.content = tree.AJAX.store;
-                tree.AJAX.add.call(tree.AJAX);
-                tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
-            },
-            update: function () {
-                tree.AJAX.parameters = 'update=';
-                //tree.AJAX.store = tree.AJAX.store || document.body.appendChild(document.createElement('div'));
-                tree.AJAX.store.setAttribute('class', 'listcontent');
-                tree.AJAX.content = tree.AJAX.store;
-                tree.AJAX.store = tree.AJAX.store || document.body.appendChild(document.createElement('ol'));
-                tree.AJAX.store.setAttribute('class', 'listcontent');
-                tree.AJAX.store.setAttribute('id', 'history');
-                tree.AJAX.store.setAttribute('start', '0');
-                tree.AJAX.update.call(tree.AJAX);
-                tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
-            }
-        },
-        historyPrep: function () {
-            for (var i = 1; i < this.length - 1; i++) {
-                //this[i].children[1].addEventListener('click', tree.contMenu.moveHistory.make, false);
-                //    this[i].children[2].addEventListener('click', tree.contMenu.removeItem, false);
-                //    this[i].children[3].addEventListener('click', tree.contMenu.addItem, false);
-            }
-            //this[0].addEventListener('click', tree.contMenu.closeHistory, false);
-            //this[0].ev = {};
-            //this[0].ev.list = tree.contMenu.list.add;
-            //this[0].ev.elem = tree.contMenu.Item.el.list;
-            //this[this.length - 1].children[0].addEventListener('click', tree.contMenu.Opacity.setting, false);
-            //this[this.length - 1].children[1].addEventListener('click', tree.contMenu.Opacity.setting, false);
-        },
-        Opacity: {
-            op: 0,
-            setting: function () {
-                this.textContent == '+' ? this.op < 9 ? this.op++ : this.op = 1 : this.op > 0 ? this.op-- : this.op = 9;
-                this.parentNode.parentNode.parentNode.setAttribute('style', 'opacity:0.' + this.op + ';');
-            }
-        },
-        moveHistory: {
-            ID: '',
-            make: function () {
-                tree.AJAX.parameters = 'id=' + this.previousElementSibling.textContent;
-                tree.AJAX.content = document.getElementsByClassName('node')[0];
-                tree.AJAX.add.call(tree.AJAX);
-            }
+        delete: function () {
+            tree.items.span.parentNode.parentNode.removeChild(tree.items.span.parentNode);
         },
         save: function () {
             tree.items.span.removeAttribute('class');
-            tree.AJAX.parameters = 'insert=';
+            tree.AJAX.paramName = 'insert=';
             tree.AJAX.content = document.getElementsByClassName('node')[0].innerHTML;
             tree.AJAX.moveHistory.call(tree.AJAX);
             if (tree.items.span) tree.items.span.removeAttribute('class');
             document.body.removeChild(tree.contMenu.box.el);
+        },
+        listHistory: {
+            title: 'div',
+            titleBox: '',
+            full: 'ul',
+            fullBox: '',
+            store: function () {
+                this.titleBox = document.body.appendChild(document.createElement(this.title));
+                this.titleBox.setAttribute('class', 'titleBox');
+                this.titleBox.innerHTML = '<span class="plus" title="Add opacity to a list">-</span>' +
+                    '<span class="minus" title="Remove opacity to a list">+</span>' +
+                    '<span class="close" title="Close hisory list">X</span>' +
+                    '<span class="refresh" title="Refresh hisory list">Refresh</span>';
+                this.fullBox = document.body.appendChild(document.createElement(this.full));
+                this.fullBox.setAttribute('class', 'listcontent');
+                this.titleBox.children[0].addEventListener('click', tree.contMenu.Opacity.setting, false);
+                this.titleBox.children[1].addEventListener('click', tree.contMenu.Opacity.setting, false);
+                this.titleBox.children[2].addEventListener('click', tree.contMenu.closeListItems, false);
+                this.titleBox.children[3].addEventListener('click', tree.contMenu.refreshHistory, false);
+            },
+            reset: function () {
+                for (var i = 0; i < this.fullBox.children.length; ++i) {
+                    this.fullBox.children[i].children[1].addEventListener('click', tree.contMenu.updateHistory, false);
+                    this.fullBox.children[i].children[3].addEventListener('click', tree.contMenu.insertHistory, false);
+                    this.fullBox.children[i].children[2].addEventListener('click', tree.contMenu.deleteHistory, false);
+                }
+
+            }
+        },
+        readHistory: function () {
+            tree.AJAX.paramName = 'readhistory=';
+            tree.AJAX.whatToDo = tree.contMenu.listHistory.store;
+            tree.AJAX.whatChange = tree.contMenu.listHistory.fullBox;
+            tree.AJAX.read.call(tree.AJAX);
+            tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
+        },
+        updateHistory: function () {
+            tree.AJAX.paramName = 'updatehistory=';
+            tree.AJAX.paramValue = this.parentNode.children[0].textContent;
+            tree.AJAX.whatChange = tree.disactive.nextElementSibling;
+            tree.AJAX.update.call(tree.AJAX);
+            tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
+        },
+        insertHistory: function () {
+            tree.AJAX.paramName = 'insethistory=';
+            tree.AJAX.paramValue = this.parentNode.children[0].textContent;
+            tree.AJAX.whatChange = tree.disactive.nextElementSibling;
+            tree.AJAX.update.call(tree.AJAX);
+            tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
+        },
+        deleteHistory: function () {
+            tree.AJAX.paramName = 'deletehistory=';
+            tree.AJAX.paramValue = this.parentNode.children[0].textContent;
+            tree.AJAX.whatChange = tree.disactive.nextElementSibling;
+            tree.AJAX.update.call(tree.AJAX);
+            tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
+        },
+        refreshHistory: function () {
+            tree.AJAX.paramName = 'readhistory=';
+            document.body.removeChild(tree.contMenu.listHistory.titleBox);
+            document.body.removeChild(tree.contMenu.listHistory.fullBox);
+            tree.AJAX.whatToDo = tree.contMenu.listHistory.store;
+            tree.AJAX.whatChange = tree.contMenu.listHistory.fullBox;
+            tree.AJAX.read.call(tree.AJAX);
+            tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
+        },
+        Opacity: {
+            op: 9,
+            elemInfo: '',
+            elemToChange: '',
+            setting: function () {
+                this.elemInfo.textContent == '+' ? this.op < 9 ? this.op++ : this.op = 1 : this.op > 0 ? this.op-- : this.op = 9;
+                this.elemToChange.setAttribute('style', 'titleBox:0.' + this.op + ';');
+            }
+        },
+        setOpacity: function () {
+            tree.contMenu.Opacity.elemInfo = this;
+            tree.contMenu.Opacity.elemToChange = this.parentNode.nextSibling;
+            tree.contMenu.Opacity.setting.call(tree.contMenu.Opacity);
+        },
+        moveHistory: function () {
+            tree.AJAX.paramName = 'moveinhestoty=' + this.previousElementSibling.textContent;
+            tree.AJAX.content = document.getElementsByClassName('node')[0];
+            tree.AJAX.update.call(tree.AJAX);
         }
     },
     AJAX: {
         url: 'CrudClass.php',
-        parameters: 'history=',
-        content: '',
-        add: function () {
-            tree.AJAX.params = this.parameters + this.content;
-            tree.AJAX.http = new XMLHttpRequest();
-            tree.AJAX.http.open('POST', this.url, true);
-            tree.AJAX.http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            tree.AJAX.http.onreadystatechange = function () {
-                if (tree.AJAX.http.readyState < 4 && tree.AJAX.http.status == 200) {
-                    tree.disactive.setAttribute('id', 'load');
-                }
-                if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
-                    tree.AJAX.content.innerHTML = tree.AJAX.http.responseText;
-                    tree.contMenu.Item.el.list.removeEventListener('click', tree.contMenu.historyPrep, false);
-                    tree.contMenu.historyPrep.call(tree.AJAX.store.children[0].children);
-                    tree.disactive.setAttribute('id', 'loaded');
-                }
-            };
-            tree.AJAX.http.send(tree.AJAX.params);
+        paramName: 'updatehistory=',
+        paramValue: '',
+        whatChange: '',
+        whatToDo: '',
+        http: new XMLHttpRequest(),
+        read: function () {
+            this.params = this.paramName;
+            this.http.open('POST', this.url, true);
+            this.http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            this.http.onreadystatechange = this.readStage;
+            this.http.send(this.params);
+        },
+        readStage: function () {
+            if (tree.AJAX.http.readyState === 2 && tree.AJAX.http.status == 200) {
+                tree.AJAX.whatToDo.call(tree.contMenu.listHistory);
+                tree.disactive.setAttribute('id', 'load');
+            }
+            if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
+                tree.AJAX.whatChange = tree.contMenu.listHistory.fullBox;
+                tree.AJAX.whatChange.innerHTML = tree.AJAX.http.responseText;
+                tree.contMenu.listHistory.reset();
+                tree.disactive.setAttribute('id', 'loaded');
+            }
         },
         update: function () {
-            tree.AJAX.params = this.parameters + this.content;
-            tree.AJAX.http = new XMLHttpRequest();
-            tree.AJAX.http.open('POST', this.url, true);
-            tree.AJAX.http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            tree.AJAX.http.onreadystatechange = function () {
-                if (tree.AJAX.http.readyState < 4 && tree.AJAX.http.status == 200) {
-                    tree.disactive.setAttribute('id', 'load');
-                }
-                if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
-                    tree.AJAX.content.innerHTML = tree.AJAX.http.responseText;
-                    tree.disactive.setAttribute('id', 'loaded');
-                }
-            };
-            tree.AJAX.http.send(tree.AJAX.params);
+            this.params = this.paramName + this.paramValue;
+            this.http.open('POST', this.url, true);
+            this.http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            this.http.onreadystatechange = this.updateStage;
+            this.http.send(this.params);
         },
-        moveHistory: function () {
-            tree.AJAX.params = this.parameters + this.content;
-            tree.AJAX.http = new XMLHttpRequest();
-            tree.AJAX.http.open('POST', this.url, true);
-            tree.AJAX.http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            tree.AJAX.http.onreadystatechange = function () {
-                if (tree.AJAX.http.readyState < 4 && tree.AJAX.http.status == 200) {
-                    tree.disactive.setAttribute('id', 'load');
-                }
-                if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
-                    tree.AJAX.content = tree.AJAX.http.responseText;
-                    tree.disactive.setAttribute('id', 'loaded');
-                }
-            };
-            tree.AJAX.http.send(tree.AJAX.params);
+        updateStage: function () {
+            if (tree.AJAX.http.readyState === 2 && tree.AJAX.http.status == 200) {
+                tree.disactive.setAttribute('id', 'load');
+            }
+            if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
+                tree.disactive.nextElementSibling.innerHTML = tree.AJAX.http.responseText;
+                tree.refrashNodeEvens.dragaElemets = document.getElementsByClassName('node')[0].getElementsByTagName('span');
+                tree.refrashClotEvens.button = document.getElementsByClassName('node')[0].getElementsByTagName('div');
+                tree.disactive.setAttribute('id', 'loaded');
+                tree.refrashNodeEvens.resetter();
+                tree.refrashClotEvens.doIt();
+            }
         }
     },
     dblclick: {

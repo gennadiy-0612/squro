@@ -23,84 +23,55 @@ class Crud extends SQLite3
         $this->show = $this->result->fetchArray()[1];
     }
 
-    public function history()
+    public function readhistory()
     {
         $this->result = $this->query('SELECT ID, timestamp FROM HISTORY');
-        $show = '';
         $i = 0;
         while ($row = $this->result->fetchArray()) {
-            $show .= '<li><span class="number">' . $row[0] . '</span>
+            $this->show .= '<li>
+            <span class="number">' . $row[0] . '</span>
             <span class="date">' . $row[1] . '</span>
-            <span class="remove">-</span>
-            <span class="clone">+</span></li>';
+            <span class="remove" title="Remove item history">-</span>
+            <span class="clone" title="Clone item history">+</span></li>';
             $i++;
         }
-        echo    $show;//, '
-//              <div class="opacity">
-//               <span class="plus">-</span>
-//               <span class="minus">+</span>
-//              </div>';
     }
 
-    public function going($id)
+    public function updatehistory($id)
     {
-        $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = ' . $id . ';');
-        echo $this->result->fetchArray()[1];
+        $this->result = $this->query('SELECT STATE FROM HISTORY WHERE ID = ' . $id . ';');
+        $this->show = $this->result->fetchArray()[0];
     }
 
-    public function removeItem($id)
+    public function insethistory($ul)
+    {
+        $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = ' . $ul . ';');
+        $this->query('INSERT INTO HISTORY (STATE) VALUES (\'' . $this->result->fetchArray()[1] . '\');');
+        $this->result = $this->query('SELECT STATE FROM HISTORY WHERE ID = (SELECT max(ID)FROM HISTORY);');
+        $this->show = $this->result->fetchArray()[0];
+    }
+
+    public function deletehistory($id)
     {
         $this->result = $this->query('DELETE  FROM HISTORY WHERE ID = ' . $id . ';');
-        $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = (SELECT max(ID)FROM HISTORY);');
-        echo $this->result->fetchArray()[1];
-    }
-
-    public function movehistory($id)
-    {
-        $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = ' . $id . ';');
-        echo $this->result->fetchArray()[1];
-    }
-
-    public function insert($ul)
-    {
-        $this->exec('INSERT INTO HISTORY (STATE) VALUES (\'' . SQLite3::escapeString($ul) . '\');');
-        $this->result = $this->query('SELECT ID, STATE, TIMESTAMP FROM HISTORY WHERE ID = (SELECT max(ID)FROM HISTORY);');
-        echo $this->result->fetchArray()[1];
-    }
-
-    public function update()
-    {
-        $this->result = $this->query('SELECT ID, TIMESTAMP FROM HISTORY;');
-        while ($row = $this->result->fetchArray()) {
-            $this->show .= '<li><span class="number">' . $row[0] . '</span>
-            <span class="date">' . $row[1] . '</span>
-            <span class="remove">-</span>
-            <span class="clone">+</span></li>';
-        }
     }
 }
 
 $dbData = new Crud();
-if (isset($_POST['history'])) {
-    $dbData->history();
-}
-if (isset($_POST['insert'])) {
-    $dbData->insert($_POST['insert']);
-}
-if (isset($_POST['id'])) {
-    $num = intval($_POST['id']);
-    $dbData->going($num);
-}
-if (isset($_POST['removeitem'])) {
-    $num = intval($_POST['removeitem']);
-    $dbData->removeItem($num);
-}
-if (isset($_POST['movehistory'])) {
-    $num = intval($_POST['movehistory']);
-    $dbData->movehistory($num);
-}
-if (isset($_POST['update'])) {
-    $num = intval($_POST['update']);
-    $dbData->update();
+if (isset($_POST['readhistory'])) {
+    $dbData->readhistory();
     echo $dbData->show;
+}
+if (isset($_POST['updatehistory'])) {
+    $num = intval($_POST['updatehistory']);
+    $dbData->updatehistory($num);
+    echo $dbData->show;
+}
+if (isset($_POST['insethistory'])) {
+    $dbData->insethistory($_POST['insethistory']);
+    echo $dbData->show;
+}
+if (isset($_POST['deletehistory'])) {
+    $num = intval($_POST['deletehistory']);
+    $dbData->deletehistory($num);
 }

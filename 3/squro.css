@@ -1,6 +1,6 @@
 body {
     padding: 0;
-    margin:0
+    margin: 0
 }
 
 .editable, .node {
@@ -162,25 +162,11 @@ ul {
     z-index: 1;
     overflow-y: auto;
 }
-.listcontent li{
+
+.listcontent li {
     height: 20px;
     list-style-type: decimal-leading-zero;
     list-style-position: inside;
-}
-
-#history {
-    background-color: #8c6aff;
-    height: 230px;
-    left: -30px;
-    margin: 5px auto;
-    overflow-y: scroll;
-    padding: 5px;
-    width: 232px;
-    z-index: 1;
-}
-
-ol#history li {
-    list-style: decimal-leading-zero inside;
 }
 
 .remove, .clone {
@@ -204,7 +190,8 @@ ol#history li {
 .clone:hover,
 .close:hover,
 .plus:hover,
-.minus:hover {
+.minus:hover,
+.refresh:hover {
     cursor: pointer;
 }
 
@@ -231,7 +218,7 @@ span.date:hover,
     color: #fff;
 }
 
-.opacity {
+.titleBox {
     top: 0;
     height: 337px;
     right: 0;
@@ -254,4 +241,14 @@ span.date:hover,
     border-radius: 25px;
     width: 30px;
     float: left;
+}
+.refresh{
+    background-color:antiquewhite;
+    display:block;
+    width: 55px;
+    height: 30px;
+    margin: 5px 0px 0 120px;
+    border-radius: 5px;
+    line-height: 30px;
+    text-align: center;
 }

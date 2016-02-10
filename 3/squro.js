@@ -28,6 +28,7 @@ tree = {
             doIt: function () {
                 for (var i = 0; i < this.button.length; i++) {
                     this.button[i].addEventListener('click', tree.items.doIt, false);
+                    if (this.button[i].textContent === ' ') this.button[i].textContent = '+';
                 }
             }
         },
@@ -89,6 +90,12 @@ tree = {
         tree.refrashClotEvens = new Object(tree.items.clot);
         tree.items.clot.doIt.call(tree.items.clot);
         tree.disactive = document.getElementsByTagName('h1')[0];
+    },
+    loadCopy: function () {
+        tree.refrashNodeEvens.dragaElemets = document.getElementsByClassName('node')[0].getElementsByTagName('span');
+        tree.refrashClotEvens.button = document.getElementsByClassName('node')[0].getElementsByTagName('div');
+        tree.refrashNodeEvens.resetter();
+        tree.refrashClotEvens.doIt();
     },
     contMenu: {
         box: {
@@ -154,7 +161,6 @@ tree = {
         closeContMenu: function (event) {
             if (tree.items.span) tree.items.span.removeAttribute('class');
             document.body.removeChild(event.target.parentNode);
-            console.log(tree);
         },
         closeListItems: function () {
             document.body.removeChild(tree.contMenu.listHistory.titleBox);
@@ -166,17 +172,19 @@ tree = {
             tree.items.span.parentNode.parentNode.insertBefore(
                 tree.items.span.parentNode.cloneNode(true),
                 tree.items.span.parentNode);
+            tree.loadCopy();
         },
         delete: function () {
             tree.items.span.parentNode.parentNode.removeChild(tree.items.span.parentNode);
         },
         save: function () {
-            tree.items.span.removeAttribute('class');
-            tree.AJAX.paramName = 'insert=';
-            tree.AJAX.content = document.getElementsByClassName('node')[0].innerHTML;
-            tree.AJAX.moveHistory.call(tree.AJAX);
-            if (tree.items.span) tree.items.span.removeAttribute('class');
             document.body.removeChild(tree.contMenu.box.el);
+            tree.items.span.removeAttribute('class');
+            tree.AJAX.paramName = 'insertul=';
+            tree.AJAX.paramValue = document.getElementsByClassName('node')[0].innerHTML;
+            tree.AJAX.whatChange = document.getElementsByClassName('node')[0];
+            tree.AJAX.update.call(tree.AJAX);
+            tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
         },
         listHistory: {
             title: 'div',
@@ -192,9 +200,8 @@ tree = {
                     '<span class="refresh" title="Refresh hisory list">Refresh</span>';
                 this.fullBox = document.body.appendChild(document.createElement(this.full));
                 this.fullBox.setAttribute('class', 'listcontent');
-                tree.contMenu.Opacity.elemInfo = '';
-                this.titleBox.children[0].addEventListener('click', tree.contMenu.Opacity.setting, false);
-                this.titleBox.children[1].addEventListener('click', tree.contMenu.Opacity.setting, false);
+                this.titleBox.children[0].addEventListener('click', tree.contMenu.setOpacity, false);
+                this.titleBox.children[1].addEventListener('click', tree.contMenu.setOpacity, false);
                 this.titleBox.children[2].addEventListener('click', tree.contMenu.closeListItems, false);
                 this.titleBox.children[3].addEventListener('click', tree.contMenu.refreshHistory, false);
             },
@@ -244,24 +251,26 @@ tree = {
             tree.AJAX.read.call(tree.AJAX);
             tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
         },
-        Opacity: {
+        opac: {
             op: 9,
             elemInfo: '',
             elemToChange: '',
+            sign: '',
             setting: function () {
-                this.elemInfo.textContent == '+' ? this.op < 9 ? this.op++ : this.op = 1 : this.op > 0 ? this.op-- : this.op = 9;
-                this.elemToChange.setAttribute('style', 'titleBox:0.' + this.op + ';');
+                this.sign == '+' ?
+                    this.op < 9 ? this.op++ : this.op = 9 :
+                    this.op > 1 ? this.op-- : this.op = 1;
+                this.elemInfo.setAttribute('style', 'opacity:0.' + this.op + ';');
+                this.elemToChange.setAttribute('style', 'opacity:0.' + this.op + ';');
             }
         },
+        Opacity: {},
         setOpacity: function () {
-            tree.contMenu.Opacity.elemInfo = this;
-            tree.contMenu.Opacity.elemToChange = this.parentNode.nextSibling;
-            tree.contMenu.Opacity.setting.call(tree.contMenu.Opacity);
-        },
-        moveHistory: function () {
-            tree.AJAX.paramName = 'moveinhestoty=' + this.previousElementSibling.textContent;
-            tree.AJAX.content = document.getElementsByClassName('node')[0];
-            tree.AJAX.update.call(tree.AJAX);
+            var a = tree.contMenu.opac;
+            a.elemInfo = this.parentNode;
+            a.elemToChange = this.parentNode.nextSibling;
+            a.sign = this.textContent;
+            a.setting.call(a);
         }
     },
     AJAX: {
@@ -303,11 +312,8 @@ tree = {
             }
             if (tree.AJAX.http.readyState == 4 && tree.AJAX.http.status == 200) {
                 tree.disactive.nextElementSibling.innerHTML = tree.AJAX.http.responseText;
-                tree.refrashNodeEvens.dragaElemets = document.getElementsByClassName('node')[0].getElementsByTagName('span');
-                tree.refrashClotEvens.button = document.getElementsByClassName('node')[0].getElementsByTagName('div');
                 tree.disactive.setAttribute('id', 'loaded');
-                tree.refrashNodeEvens.resetter();
-                tree.refrashClotEvens.doIt();
+                tree.loadCopy();
             }
         }
     },

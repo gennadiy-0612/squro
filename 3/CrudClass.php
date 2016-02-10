@@ -51,6 +51,13 @@ class Crud extends SQLite3
         $this->show = $this->result->fetchArray()[0];
     }
 
+    public function insertul($ul)
+    {
+        $this->query('INSERT INTO HISTORY (STATE) VALUES (\'' . $ul . '\');');
+        $this->result = $this->query('SELECT STATE FROM HISTORY WHERE ID = (SELECT max(ID)FROM HISTORY);');
+        $this->show = $this->result->fetchArray()[0];
+    }
+
     public function deletehistory($id)
     {
         $this->result = $this->query('DELETE  FROM HISTORY WHERE ID = ' . $id . ';');
@@ -69,6 +76,10 @@ if (isset($_POST['updatehistory'])) {
 }
 if (isset($_POST['insethistory'])) {
     $dbData->insethistory($_POST['insethistory']);
+    echo $dbData->show;
+}
+if (isset($_POST['insertul'])) {
+    $dbData->insertul($_POST['insertul']);
     echo $dbData->show;
 }
 if (isset($_POST['deletehistory'])) {

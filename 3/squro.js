@@ -1,5 +1,5 @@
 /**
- * Created by Gennadiy on 04.12.2015.
+ * Created by Gennadiy Shcherbakha on 04.12.2015.
  */
 'use strict';
 var tree;
@@ -8,12 +8,14 @@ tree = {
         span: {
             dragaElemets: document.getElementsByTagName('span'),
             resetter: function () {
+                //Set functional to span of ul tree
                 for (var i = 0; i < this.dragaElemets.length; i++) {
                     this.dragaElemets[i].parentNode.setAttribute('draggable', 'false');
                     this.dragaElemets[i].addEventListener('dblclick', tree.dblclick.getTarget, false);
                     this.dragaElemets[i].parentNode.addEventListener('mouseenter', tree.items.mouse.enter.doIt, false);
                     this.dragaElemets[i].parentNode.addEventListener('mouseleave', tree.items.mouse.leave.doIt, false);
                     if (this.dragaElemets[i].parentNode.parentNode.parentNode.tagName === 'BODY') {
+                        //Prevent of propagate even to child
                         this.dragaElemets[i].parentNode.addEventListener('dragstart', tree.items.drag.start, false);
                         this.dragaElemets[i].parentNode.addEventListener('dragenter', tree.items.drag.over, false);//For IE 9<
                         this.dragaElemets[i].parentNode.addEventListener('dragover', tree.items.drag.over, false);
@@ -28,11 +30,11 @@ tree = {
             doIt: function () {
                 for (var i = 0; i < this.button.length; i++) {
                     this.button[i].addEventListener('click', tree.items.doIt, false);
-                    if (this.button[i].textContent === ' ') this.button[i].textContent = '+';
+                    if (this.button[i].textContent === ' ') this.button[i].textContent = '+';//Set sign of clotting
                 }
             }
         },
-        doIt: function (event) {
+        doIt: function (event) {//Change sign of clotting
             event.stopPropagation();
             if (event.target.textContent === '+') {
                 event.target.parentNode.setAttribute('class', '');
@@ -46,13 +48,16 @@ tree = {
             }
         },
         mouse: {
+            //Set element for drug & drop operation
             enter: {
+                //When event enter mouse fire
                 drag: 'true',
                 doIt: function (event) {
                     event.target.setAttribute('draggable', 'true');
                 }
             },
             leave: {
+                //When event leave mouse fire
                 drag: 'false',
                 doIt: function (event) {
                     event.target.setAttribute('draggable', 'false');
@@ -61,42 +66,48 @@ tree = {
         },
         drag: {
             start: function (event) {
-                // store a ref. on the dragged elem
-                tree.items.drag.this_insert_old = event.target;
-                tree.items.drag.this_insert = new Object(event.target.cloneNode(true));
+                // Store a reference on the dragged elemnt
+                tree.items.drag.thisInsertOld = event.target;
+                tree.items.drag.thisInsert = new Object(event.target.cloneNode(true));
                 event.dataTransfer.setData('text', 'data');
                 event.dataTransfer.effectAllowed = "move";
             },
             over: function (event) {
-                // prevent default to allow drop
+                // Prevent default to allow drop
                 event.preventDefault();
             },
             clot: '',
             drop: function (event) {
-                // prevent default action (open as link for some elements)
-                event.preventDefault();
-                tree.items.drag.this_insert_before = event.target.parentNode;
-                tree.items.drag.clot = tree.items.drag.this_insert_before.parentNode.insertBefore(tree.items.drag.this_insert, tree.items.drag.this_insert_before);
-                tree.items.drag.this_insert_old.parentNode.removeChild(tree.items.drag.this_insert_old);
+                //Insert deep new copy old element and then delete old element
+                tree.items.drag.thisInsertBefore = event.target.parentNode;
+                tree.items.drag.clot = tree.items.drag.thisInsertBefore.parentNode.insertBefore(tree.items.drag.thisInsert, tree.items.drag.thisInsertBefore);
+                tree.items.drag.thisInsertOld.parentNode.removeChild(tree.items.drag.thisInsertOld);
                 tree.items.drag.clot.children[0].addEventListener('click', tree.items.doIt, false);
                 tree.items.span.dragaElemets = tree.items.drag.clot.getElementsByTagName('span');
+                //Reset all functional again
                 tree.items.span.resetter();
             }
         }
     },
     load: function () {
+        //Make a deep copy for further access
         tree.refrashNodeEvens = new Object(tree.items.span);
+        //When load event occur apply full functional to element
         tree.items.span.resetter.call(tree.items.span);
         tree.refrashClotEvens = new Object(tree.items.clot);
         tree.items.clot.doIt.call(tree.items.clot);
+        //Make element blocker for silent ajax
         tree.disactive = document.getElementsByTagName('h1')[0];
     },
     loadCopy: function () {
+        //Take elements who are locate only in a tree
         tree.refrashNodeEvens.dragaElemets = document.getElementsByClassName('node')[0].getElementsByTagName('span');
         tree.refrashClotEvens.button = document.getElementsByClassName('node')[0].getElementsByTagName('div');
+        //Reset all functional again
         tree.refrashNodeEvens.resetter();
         tree.refrashClotEvens.doIt();
     },
+    //Insert a main box of menu for editing of tree elements
     contMenu: {
         box: {
             tags: 'ul',
@@ -109,6 +120,7 @@ tree = {
                 this.el.setAttribute('class', this.CLASS);
             }
         },
+        //Fill items for further editing in a main box
         Item: {
             el: [],
             tags: 'li',
@@ -124,34 +136,42 @@ tree = {
                 this.childs.setAttribute('class', this.CLASS);
                 this.childs.textContent = this.ID.toUpperCase();
                 this.childs.addEventListener('click', this.evListName, false);
+                //Make reference for further access
                 this.el[this.ID] = this.childs;
             }
         },
         insert: function (event) {
             event.preventDefault();
-            tree.items.span = event.target;
             if (document.getElementById('contextmenu') === null) {
+                tree.items.span = event.target;
+                //Mark worker element
                 tree.items.span.setAttribute('class', 'active');
+                //Make a main box containing elements of control
                 tree.contMenu.box.make.call(tree.contMenu.box);
 
+                //Make close menu control button
                 tree.contMenu.Item.parents = tree.contMenu.box.el;
                 tree.contMenu.Item.ID = 'close';
                 tree.contMenu.Item.evListName = tree.contMenu.closeContMenu;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
                 tree.contMenu.Item.childs.textContent = 'X';
 
+                //Make view list of history control button
                 tree.contMenu.Item.ID = 'list';
                 tree.contMenu.Item.evListName = tree.contMenu.readHistory;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
 
+                //Make clone of element control button
                 tree.contMenu.Item.ID = 'clone';
                 tree.contMenu.Item.evListName = tree.contMenu.clone;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
 
+                //Make delete of element control button
                 tree.contMenu.Item.ID = 'delete';
                 tree.contMenu.Item.evListName = tree.contMenu.delete;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
 
+                //Make save of element control button
                 tree.contMenu.Item.ID = 'save';
                 tree.contMenu.Item.evListName = tree.contMenu.save;
                 tree.contMenu.Item.make.call(tree.contMenu.Item);
@@ -186,6 +206,7 @@ tree = {
             tree.AJAX.update.call(tree.AJAX);
             tree.contMenu.box.el.setAttribute('style', 'visibility:hidden;');
         },
+        //List of history
         listHistory: {
             title: 'div',
             titleBox: '',
@@ -194,8 +215,10 @@ tree = {
             store: function () {
                 this.titleBox = document.body.appendChild(document.createElement(this.title));
                 this.titleBox.setAttribute('class', 'titleBox');
-                this.titleBox.innerHTML = '<span class="plus" title="Add opacity to a list">-</span>' +
-                    '<span class="minus" title="Remove opacity to a list">+</span>' +
+                //Elements of control opacity in event small screan of ua
+                this.titleBox.innerHTML = '' +
+                    '<span class="plus" title="Add opacity to a list if small screan of ua">-</span>' +
+                    '<span class="minus" title="Remove opacity to a list if small screan of ua">+</span>' +
                     '<span class="close" title="Close hisory list">X</span>' +
                     '<span class="refresh" title="Refresh hisory list">Refresh</span>';
                 this.fullBox = document.body.appendChild(document.createElement(this.full));
@@ -326,6 +349,7 @@ tree = {
             tree.dblclick.edit.call(tree.dblclick);
         },
         edit: function () {
+            //Change not editable element to editable
             this.textarea = document.createElement('textarea');
             this.textarea.addEventListener('mouseleave', tree.dblclick.caller, false);
             this.textarea.setAttribute('class', 'editable');
@@ -338,6 +362,7 @@ tree = {
             tree.dblclick.notEdit.call(tree.dblclick);
         },
         notEdit: function () {
+            //Change editable element to not editable
             this.Span = document.createElement('span');
             this.Span.textContent = this.textarea.value;
             this.textarea.parentNode.insertBefore(this.Span, this.textarea);

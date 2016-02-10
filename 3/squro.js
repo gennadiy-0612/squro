@@ -100,7 +100,6 @@ tree = {
                 this.el = document.body.appendChild(document.createElement(this.tags));
                 this.el.setAttribute('id', this.ID);
                 this.el.setAttribute('class', this.CLASS);
-                this.el.number = 1;
             }
         },
         Item: {
@@ -124,7 +123,7 @@ tree = {
         insert: function (event) {
             event.preventDefault();
             tree.items.span = event.target;
-            if (tree.contMenu.box.el.innerHTML === undefined) {
+            if (document.getElementById('contextmenu') === null) {
                 tree.items.span.setAttribute('class', 'active');
                 tree.contMenu.box.make.call(tree.contMenu.box);
 
@@ -193,6 +192,7 @@ tree = {
                     '<span class="refresh" title="Refresh hisory list">Refresh</span>';
                 this.fullBox = document.body.appendChild(document.createElement(this.full));
                 this.fullBox.setAttribute('class', 'listcontent');
+                tree.contMenu.Opacity.elemInfo = '';
                 this.titleBox.children[0].addEventListener('click', tree.contMenu.Opacity.setting, false);
                 this.titleBox.children[1].addEventListener('click', tree.contMenu.Opacity.setting, false);
                 this.titleBox.children[2].addEventListener('click', tree.contMenu.closeListItems, false);
